@@ -22,18 +22,18 @@ public class UsuarioController {
     }
 
     @PostMapping()
-    public UsuarioModel guardarUsuario(@RequestBody UsuarioModel usuario){
+    public UsuarioModel registrarUsuario(@RequestBody UsuarioModel usuario){
         return this.usuarioService.guardarUsuario(usuario);
     }
 
     @GetMapping( path = "/{id}")
-    public Optional<UsuarioModel> obtenerUsuarioPorId(@PathVariable("id") Long id) {
+    public Optional<UsuarioModel> obtenerPorId(@PathVariable("id") Long id) {
         return this.usuarioService.obtenerPorId(id);
     }
 
     @GetMapping("/query")
-    public ArrayList<UsuarioModel> obtenerUsuarioPorPrioridad(@RequestParam("prioridad") Integer prioridad){
-        return this.usuarioService.obtenerPorPrioridad(prioridad);
+    public ArrayList<UsuarioModel> obtenerUsuarioPorAdmin(@RequestParam("admin") boolean admin){
+        return this.usuarioService.obtenerPorAdmin(admin);
     }
 
     @DeleteMapping( path = "/{id}")
