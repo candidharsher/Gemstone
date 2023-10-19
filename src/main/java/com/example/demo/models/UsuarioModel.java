@@ -17,6 +17,7 @@ public class UsuarioModel {
     private boolean admin;
     private ArrayList<JuegoModel> juegosenPropiedad;
     private String password;
+    @Transient
     private String authToken;
 
     public UsuarioModel(String username, String email, boolean admin,
