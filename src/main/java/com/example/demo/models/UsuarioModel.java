@@ -12,14 +12,22 @@ public class UsuarioModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(unique = true, nullable = false)
     private Long id;
+    @Column(unique = true, nullable = false)
     private String username;
+    @Column(nullable = true)
     private String email;
+    @Column(nullable = false)
     private boolean admin;
-    private ArrayList<JuegoModel> juegosenPropiedad;
+    @Column(nullable = true)
+    private ArrayList<JuegoModel> juegos_en_propiedad;
+    @Column(nullable = false)
     private String password;
     @Transient
     private String authToken;
-
+    
+    public UsuarioModel() {
+    	
+    }
     public UsuarioModel(String username, String email, boolean admin,
 			String password) {
 		super();
@@ -28,7 +36,7 @@ public class UsuarioModel {
 		this.admin = admin;
 		this.password = password;
 		this.authToken=null;
-		this.juegosenPropiedad=null;
+		this.juegos_en_propiedad=null;
 	}
 
 	public UsuarioModel(String username, String password) {
@@ -36,8 +44,8 @@ public class UsuarioModel {
 		this.username = username;
 		this.password = password;
 		this.authToken=null;
-		this.juegosenPropiedad=null;
-		this.email=null;
+		this.juegos_en_propiedad=null;
+		this.email="demo@defaultaddress.com";
 		this.admin = false;
 		
 	}

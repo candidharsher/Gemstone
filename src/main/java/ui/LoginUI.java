@@ -66,6 +66,8 @@ public class LoginUI extends Application {
 			RestTemplate restTemplate = new RestTemplate();
 			ResponseEntity<String> response = restTemplate.exchange("http://localhost:8080/usuario/iniciar-sesion",
 					HttpMethod.POST, new HttpEntity<>(credenciales), String.class);
+			 // Agrega declaraciones de impresión para depuración
+		    System.out.println("Respuesta del backend: " + response.getStatusCodeValue());
 
 			if (response.getStatusCode().equals(HttpStatus.OK)) {
 				// El inicio de sesión fue exitoso
@@ -92,7 +94,32 @@ public class LoginUI extends Application {
 
 		registerButton.setOnAction(e -> {
 			// Agrega aquí la lógica para mostrar la ventana de registro
+			
 			// Puedes crear otra ventana o diálogo para el registro de usuarios.
+			String username = usernameInput.getText();
+		    String password = passwordInput.getText();
+
+		    // Crea una entidad HTTP con las credenciales
+		    UsuarioModel credenciales = new UsuarioModel(username, password);
+
+		    // Realiza una solicitud POST al backend para registrar un nuevo usuario
+		    RestTemplate restTemplate = new RestTemplate();
+		    ResponseEntity<String> response = restTemplate.exchange("http://localhost:8080/usuario/registrar",
+		            HttpMethod.POST, new HttpEntity<>(credenciales), String.class);
+		    // Agrega declaraciones de impresión para depuración
+		    System.out.println("Respuesta del backend: " + response.getStatusCodeValue());
+
+
+		    if (response.getStatusCode().equals(HttpStatus.OK)) {
+		        // El registro fue exitoso
+		        // Puedes realizar alguna acción adicional aquí, como mostrar un mensaje de éxito.
+		    	System.out.println("Feliciades por unirse a la plataforma.");
+		    } else {
+		        // El registro falló, maneja el error adecuadamente
+		        System.out.println("Error al registrar el usuario. Verifica las credenciales.");
+		        // Puedes mostrar un mensaje de error al usuario en la interfaz.
+		        // de momento sólo son en consola... hay que mejorarlo
+		    }
 		});
 
 		grid.getChildren().addAll(usernameLabel, usernameInput, passwordLabel, passwordInput, loginButton,

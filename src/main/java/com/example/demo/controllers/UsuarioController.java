@@ -27,6 +27,7 @@ public class UsuarioController {
     @GetMapping()
     public ArrayList<UsuarioModel> obtenerUsuarios(){
         return usuarioService.obtenerUsuarios();
+        
     }
 
     @PostMapping("/registrar")
@@ -36,19 +37,15 @@ public class UsuarioController {
         }
 
         // Verifica si el usuario ya existe
-        if (usuarioService.registrarUsuario(usuario) == null) {
+        UsuarioModel usuarioRegistrado = usuarioService.registrarUsuario(usuario);
+
+        if (usuarioRegistrado == null) {
             return new ResponseEntity<>("El nombre de usuario ya existe", HttpStatus.BAD_REQUEST);
-        }
-
-        // Intenta iniciar sesión con el nuevo usuario
-        ResponseEntity<String> respuestaInicioSesion = iniciarSesion(usuario);
-
-        if (respuestaInicioSesion.getStatusCode() == HttpStatus.OK) {
-            return new ResponseEntity<>("Usuario registrado y autenticado con éxito", HttpStatus.OK);
         } else {
-            return new ResponseEntity<>("Error al iniciar sesión", HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("Usuario registrado con éxito", HttpStatus.OK);
         }
     }
+
     @PostMapping("/iniciar-sesion")
     public ResponseEntity<String> iniciarSesion(@RequestBody UsuarioModel credenciales) {
         // Verifica las credenciales (nombre de usuario y contraseña) en la base de datos.
