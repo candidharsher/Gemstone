@@ -55,7 +55,7 @@ public class UsuarioModel {
         this.admin = admin;
     }
 
-    public boolean getAdmin(){
+    public boolean isAdmin(){
         return this.admin;
     }
 

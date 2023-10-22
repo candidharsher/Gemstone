@@ -4,6 +4,8 @@ import com.example.demo.models.UsuarioModel;
 
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -24,6 +26,15 @@ public class PerfilView {
 
         // Agrega las etiquetas al diseño
         perfilLayout.getChildren().addAll(usernameLabel, emailLabel);
+     // Verifica si el usuario es un administrador y muestra una imagen si es el caso
+        if (usuario.isAdmin()) {
+            // Crea un nodo de imagen y configura la imagen que deseas mostrar
+            Image adminImage = new Image(getClass().getClassLoader().getResourceAsStream("31692344.jpg")); // reemplazar con ruta que tu quieras. esto es en local pero se puede web url.
+            ImageView imageView = new ImageView(adminImage);
+
+            // Agrega la imagen al diseño
+            perfilLayout.getChildren().add(imageView);
+        }
 
         // Crea un nuevo escenario (Stage) para la vista del perfil
         perfilStage.setTitle("Perfil de Usuario");
