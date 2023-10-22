@@ -2,8 +2,10 @@ package com.example.demo.controllers;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Optional;
+import java.util.Set;
 
 import com.example.demo.models.UsuarioModel;
 import com.example.demo.services.UsuarioService;
@@ -17,6 +19,8 @@ import io.jsonwebtoken.SignatureAlgorithm;
 @RestController
 @RequestMapping("/usuario")
 public class UsuarioController {
+	private static Set<String> tokensRevocados = new HashSet<>();
+
     @Autowired
     UsuarioService usuarioService;
 
@@ -87,6 +91,12 @@ public class UsuarioController {
     public ResponseEntity<String> cerrarSesion(@RequestBody UsuarioModel usuario) {
     	// Obtén el token de autenticación del usuario
         String authToken = usuario.getAuthToken();
+        if (tokensRevocados.contains(authToken)) {
+            return new ResponseEntity<>("La sesión ya está cerrada", HttpStatus.OK);
+        }
+     // Agrega el token al conjunto de tokens revocados
+        tokensRevocados.add(authToken);
+        
      // Puedes eliminar el token del usuario si lo deseas (dependiendo de tu implementación).
         usuario.setAuthToken(null);
         // Devuelve una respuesta exitosa.
