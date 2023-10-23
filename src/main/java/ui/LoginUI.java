@@ -66,8 +66,9 @@ public class LoginUI extends Application {
 			RestTemplate restTemplate = new RestTemplate();
 			ResponseEntity<String> response = restTemplate.exchange("http://localhost:8080/usuario/iniciar-sesion",
 					HttpMethod.POST, new HttpEntity<>(credenciales), String.class);
-			 // Agrega declaraciones de impresión para depuración
-		    System.out.println("Respuesta del backend: " + response.getStatusCodeValue());
+
+			// Agrega declaraciones de impresión para depuración
+			System.out.println("Respuesta del backend: " + response.getStatusCodeValue());
 
 			if (response.getStatusCode().equals(HttpStatus.OK)) {
 				// El inicio de sesión fue exitoso
@@ -78,10 +79,27 @@ public class LoginUI extends Application {
 				// Por ejemplo, puedes crear una clase Singleton de Autenticación para almacenar
 				// el token.
 				AutenticacionSingleton.getInstance().setAuthToken(authToken);
-
+				/*
+				 * Para un futuro, lo que sería más correcto: Modifica la solicitud adicional
+				 * para obtener el usuario basado en el token. En lugar de buscar al usuario por
+				 * su nombre de usuario, puedes buscarlo por el token de autenticación que se
+				 * pasa en el encabezado de la solicitud. Esta es una forma más segura de
+				 * obtener los datos del usuario después de la autenticación. Por ejemplo:
+				 * ResponseEntity<UsuarioModel> responseUsuario = restTemplate.exchange(
+				 * "http://localhost:8080/usuario/perfil", HttpMethod.GET, new
+				 * HttpEntity<>(null, createHeaders(authToken)), UsuarioModel.class ); //
+				 * Reemplazar con la URL y el endpoint correctos en nuestro backend
+				 * 
+				 * 
+				 */
 				// Luego, puedes navegar a otra vista o realizar cualquier acción adicional.
+				// Realiza una solicitud adicional para obtener los datos del usuario
+				ResponseEntity<UsuarioModel> responseUsuario = restTemplate.exchange(
+						"http://localhost:8080/usuario/username/" + username, // Reemplaza con la URL correcta
+						HttpMethod.GET, new HttpEntity<>(null), UsuarioModel.class);
+				UsuarioModel usuario = responseUsuario.getBody();
 				// Por ejemplo, abrir la vista principal de la aplicación.
-				openPerfilView(primaryStage, credenciales);
+				openPerfilView(primaryStage, usuario);
 
 				// Puedes cerrar la ventana actual de inicio de sesión si es necesario.
 				primaryStage.close();
@@ -94,32 +112,32 @@ public class LoginUI extends Application {
 
 		registerButton.setOnAction(e -> {
 			// Agrega aquí la lógica para mostrar la ventana de registro
-			
+
 			// Puedes crear otra ventana o diálogo para el registro de usuarios.
 			String username = usernameInput.getText();
-		    String password = passwordInput.getText();
+			String password = passwordInput.getText();
 
-		    // Crea una entidad HTTP con las credenciales
-		    UsuarioModel credenciales = new UsuarioModel(username, password);
+			// Crea una entidad HTTP con las credenciales
+			UsuarioModel credenciales = new UsuarioModel(username, password);
 
-		    // Realiza una solicitud POST al backend para registrar un nuevo usuario
-		    RestTemplate restTemplate = new RestTemplate();
-		    ResponseEntity<String> response = restTemplate.exchange("http://localhost:8080/usuario/registrar",
-		            HttpMethod.POST, new HttpEntity<>(credenciales), String.class);
-		    // Agrega declaraciones de impresión para depuración
-		    System.out.println("Respuesta del backend: " + response.getStatusCodeValue());
+			// Realiza una solicitud POST al backend para registrar un nuevo usuario
+			RestTemplate restTemplate = new RestTemplate();
+			ResponseEntity<String> response = restTemplate.exchange("http://localhost:8080/usuario/registrar",
+					HttpMethod.POST, new HttpEntity<>(credenciales), String.class);
+			// Agrega declaraciones de impresión para depuración
+			System.out.println("Respuesta del backend: " + response.getStatusCodeValue());
 
-
-		    if (response.getStatusCode().equals(HttpStatus.OK)) {
-		        // El registro fue exitoso
-		        // Puedes realizar alguna acción adicional aquí, como mostrar un mensaje de éxito.
-		    	System.out.println("Feliciades por unirse a la plataforma.");
-		    } else {
-		        // El registro falló, maneja el error adecuadamente
-		        System.out.println("Error al registrar el usuario. Verifica las credenciales.");
-		        // Puedes mostrar un mensaje de error al usuario en la interfaz.
-		        // de momento sólo son en consola... hay que mejorarlo
-		    }
+			if (response.getStatusCode().equals(HttpStatus.OK)) {
+				// El registro fue exitoso
+				// Puedes realizar alguna acción adicional aquí, como mostrar un mensaje de
+				// éxito.
+				System.out.println("Feliciades por unirse a la plataforma.");
+			} else {
+				// El registro falló, maneja el error adecuadamente
+				System.out.println("Error al registrar el usuario. Verifica las credenciales.");
+				// Puedes mostrar un mensaje de error al usuario en la interfaz.
+				// de momento sólo son en consola... hay que mejorarlo
+			}
 		});
 
 		grid.getChildren().addAll(usernameLabel, usernameInput, passwordLabel, passwordInput, loginButton,
@@ -132,20 +150,20 @@ public class LoginUI extends Application {
 	}
 
 	private void openPerfilView(Stage primaryStage, UsuarioModel usuario) {
-	    // Crea una instancia de la vista principal (PerfilView) y pasa el UsuarioModel como argumento.
+		// Crea una instancia de la vista principal (PerfilView) y pasa el UsuarioModel
+		// como argumento.
 		// Crea una nueva ventana para la vista del perfil
-        Stage perfilStage = new Stage();
-        perfilStage.setTitle("Perfil de Usuario");
+		Stage perfilStage = new Stage();
+		perfilStage.setTitle("Perfil de Usuario");
 
-        // Crea una instancia de PerfilView y pasa el nombre de usuario
-        PerfilView perfilView = new PerfilView(usuario);
+		// Crea una instancia de PerfilView y pasa el nombre de usuario
+		PerfilView perfilView = new PerfilView(usuario);
 
-        // Muestra la vista del perfil en la nueva ventana
-        perfilView.mostrarPerfil(perfilStage);
+		// Muestra la vista del perfil en la nueva ventana
+		perfilView.mostrarPerfil(perfilStage);
 
-        // Cierra la ventana actual de inicio de sesión (LoginUI)
-        primaryStage.close();
-    }
-
+		// Cierra la ventana actual de inicio de sesión (LoginUI)
+		primaryStage.close();
+	}
 
 }

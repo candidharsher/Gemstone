@@ -42,7 +42,7 @@ public class UsuarioService {
         }
 
         // Si no existe un usuario con el mismo nombre de usuario, procede a guardar el nuevo usuario
-        return usuarioRepository.save(usuarioExistente);
+        return usuarioRepository.save(usuario);
     }
     public boolean eliminarUsuario(Long id) {
         try{

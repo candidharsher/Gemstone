@@ -56,7 +56,7 @@ public class UsuarioController {
 
               // Asigna el token al usuario (guardarlo en la base de datos o en una cookie, según tu elección).
               usuario.setAuthToken(authToken);
-              usuarioService.guardarUsuario(usuario); // Actualizar el token en la base de datos
+              usuarioService.guardarUsuario(usuario); // Actualiza datos, aunque por el momento no ha cambiado nada.
 
               // Devuelve el token de autenticación al cliente.
               return new ResponseEntity<>(authToken, HttpStatus.OK);
