@@ -2,9 +2,14 @@ package ui;
 
 import java.nio.file.Paths;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
+
 import com.example.demo.models.UsuarioModel;
 
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -39,7 +44,26 @@ public class PerfilView {
 			imageView.setImage(image);
 			perfilLayout.getChildren().add(imageView);
 		}
+		// AGREGADO!!! un botón de Cerrar Sesión
+		Button cerrarSesionButton = new Button("Cerrar Sesión");
+		cerrarSesionButton.setOnAction(e -> {
+			RestTemplate restTemplate = new RestTemplate();
+			ResponseEntity<String> response = restTemplate.postForEntity("http://localhost:8080/usuario/cerrar-sesion",
+					usuario, String.class);
 
+			// Maneja la respuesta según tus necesidades.
+			if (response.getStatusCode().equals(HttpStatus.OK)) {
+				// Cierre de sesión exitoso
+				// redirigir a la página de inicio de sesión, por ejemplo.
+				openLoginUI(perfilStage);
+				perfilStage.close(); // Cierra la ventana actual
+			} else {
+				// Cierre de sesión fallido
+				// Maneja el error adecuadamente
+				System.out.println("Error al cerrar la sesión");
+			}
+		});
+		perfilLayout.getChildren().add(cerrarSesionButton);
 		// Crea un nuevo escenario (Stage) para la vista del perfil
 		perfilStage.setTitle("Perfil de Usuario");
 
@@ -49,5 +73,19 @@ public class PerfilView {
 
 		// Muestra el escenario de la vista del perfil
 		perfilStage.show();
+	}
+
+	private void openLoginUI(Stage perfilStage) {
+		Stage loginStage = new Stage();
+		loginStage.setTitle("Inicio de Sesión");
+
+		// Crea una instancia de PerfilView y pasa el nombre de usuario
+		LoginUI login = new LoginUI();
+
+		// Muestra la vista del perfil en la nueva ventana
+		login.start(loginStage);
+		// Cierra la ventana actual de inicio de sesión (LoginUI)
+		perfilStage.close();
+
 	}
 }
