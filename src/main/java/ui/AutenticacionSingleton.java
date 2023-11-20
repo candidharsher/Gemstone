@@ -23,4 +23,14 @@ public class AutenticacionSingleton {
 
 	// Agrega métodos adicionales según tus necesidades, como para cerrar sesión,
 	// etc.
+	// Método para enviar solicitudes de amistad
+	public void enviarSolicitudAmistad(String nombreUsuario) {
+	    // Lógica para enviar la solicitud de amistad a 'nombreUsuario'
+	}
+
+	// Método para aceptar solicitudes de amistad
+	public void aceptarSolicitudAmistad(String nombreUsuario) {
+	    // Lógica para aceptar la solicitud de amistad de 'nombreUsuario'
+	}
+
 }

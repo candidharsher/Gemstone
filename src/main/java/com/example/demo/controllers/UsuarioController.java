@@ -123,5 +123,30 @@ public class UsuarioController {
             return "No pudo eliminar el usuario con id" + id;
         }
     }
+    @PostMapping("/enviar-solicitud-amistad")
+    public ResponseEntity<String> enviarSolicitudAmistad(@RequestParam Long usuarioId, @RequestParam Long amigoId) {
+        Optional<UsuarioModel> usuario = usuarioService.obtenerPorId(usuarioId);
+        Optional<UsuarioModel> amigo = usuarioService.obtenerPorId(amigoId);
+        if (usuario.isPresent() && amigo.isPresent()) {
+            usuario.get().agregarAmigo(amigo.get());
+            usuarioService.guardarUsuario(usuario.get());
+            return new ResponseEntity<>("Solicitud de amistad enviada", HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("Error al enviar la solicitud de amistad", HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PostMapping("/aceptar-solicitud-amistad")
+    public ResponseEntity<String> aceptarSolicitudAmistad(@RequestParam Long usuarioId, @RequestParam Long amigoId) {
+        Optional<UsuarioModel> usuario = usuarioService.obtenerPorId(usuarioId);
+        Optional<UsuarioModel> amigo = usuarioService.obtenerPorId(amigoId);
+        if (usuario.isPresent() && amigo.isPresent()) {
+            usuario.get().agregarAmigo(amigo.get());
+            usuarioService.guardarUsuario(usuario.get());
+            return new ResponseEntity<>("Solicitud de amistad aceptada", HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("Error al aceptar la solicitud de amistad", HttpStatus.BAD_REQUEST);
+        }
+    }
 
 }

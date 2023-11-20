@@ -1,6 +1,8 @@
 package com.example.demo.models;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.*;
 
@@ -24,6 +26,7 @@ public class UsuarioModel {
     private String password;
     @Transient
     private String authToken;
+    
     
     public UsuarioModel() {
     	
@@ -100,5 +103,32 @@ public class UsuarioModel {
 		// TODO Auto-generated method stub
 		return this.authToken;
 	}
+	@ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "amistades",
+        joinColumns = @JoinColumn(name = "usuario_id_1"),
+        inverseJoinColumns = @JoinColumn(name = "usuario_id_2")
+    )
+    private Set<UsuarioModel> amigos = new HashSet<>();
+
+    public Set<UsuarioModel> getAmigos() {
+        return amigos;
+    }
+
+    public void setAmigos(Set<UsuarioModel> amigos) {
+        this.amigos = amigos;
+    }
+
+    // Método para agregar amigos
+    public void agregarAmigo(UsuarioModel amigo) {
+        this.amigos.add(amigo);
+        amigo.getAmigos().add(this);
+    }
+
+    // Método para eliminar amigos
+    public void eliminarAmigo(UsuarioModel amigo) {
+        this.amigos.remove(amigo);
+        amigo.getAmigos().remove(this);
+    }
     
 }
