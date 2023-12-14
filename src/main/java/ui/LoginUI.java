@@ -20,6 +20,16 @@ import org.springframework.web.client.RestTemplate;
 import com.example.demo.models.UsuarioModel;
 
 public class LoginUI extends Application {
+	private static boolean success;
+	private static boolean loginButtonClicked;
+
+	public static boolean isSuccess() {
+		return success;
+	}
+
+	public static boolean isloginButtonClicked() {
+		return loginButtonClicked;
+	}
 
 	public static void main(String[] args) {
 		launch(args);
@@ -56,6 +66,7 @@ public class LoginUI extends Application {
 
 		// Eventos de botones
 		loginButton.setOnAction(e -> {
+			this.loginButtonClicked = true;
 			String username = usernameInput.getText();
 			String password = passwordInput.getText();
 
@@ -99,12 +110,15 @@ public class LoginUI extends Application {
 						HttpMethod.GET, new HttpEntity<>(null), UsuarioModel.class);
 				UsuarioModel usuario = responseUsuario.getBody();
 				// Por ejemplo, abrir la vista principal de la aplicación.
-				openPerfilView(primaryStage, usuario);
+				AutenticacionSingleton.getInstance().setUsuarioConectado(usuario);
+				this.success = true;
+				openFinestresApp(usuario);
 
 				// Puedes cerrar la ventana actual de inicio de sesión si es necesario.
 				primaryStage.close();
 			} else {
 				// El inicio de sesión falló, maneja el error adecuadamente
+				this.success = false;
 				System.out.println("Inicio de sesión fallido. Credenciales incorrectas.");
 				// Puedes mostrar un mensaje de error al usuario en la interfaz.
 			}
@@ -149,21 +163,11 @@ public class LoginUI extends Application {
 
 	}
 
-	private void openPerfilView(Stage primaryStage, UsuarioModel usuario) {
-		// Crea una instancia de la vista principal (PerfilView) y pasa el UsuarioModel
-		// como argumento.
-		// Crea una nueva ventana para la vista del perfil
-		Stage perfilStage = new Stage();
-		perfilStage.setTitle("Perfil de Usuario");
-
-		// Crea una instancia de PerfilView y pasa el nombre de usuario
-		PerfilView perfilView = new PerfilView(usuario);
-
-		// Muestra la vista del perfil en la nueva ventana
-		perfilView.mostrarPerfil(perfilStage);
-
-		// Cierra la ventana actual de inicio de sesión (LoginUI)
-		primaryStage.close();
+	private void openFinestresApp(UsuarioModel usuario) {
+		FinestresApp finestresApp = new FinestresApp(usuario);
+		Stage primaryStage = new Stage();
+		finestresApp.start(primaryStage);
+		primaryStage.show();
 	}
 
 }

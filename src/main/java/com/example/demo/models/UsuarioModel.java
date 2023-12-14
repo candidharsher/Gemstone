@@ -2,9 +2,12 @@ package com.example.demo.models;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.*;
+
+import ui.Mensaje;
 
 @Entity
 @Table(name = "usuarios")
@@ -17,6 +20,7 @@ public class UsuarioModel {
     @Column(unique = true, nullable = false)
     private String username;
     @Column(nullable = true)
+    
     private String email;
     @Column(nullable = false)
     private boolean admin;
@@ -26,9 +30,31 @@ public class UsuarioModel {
     private String password;
     @Transient
     private String authToken;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "amistades",
+        joinColumns = @JoinColumn(name = "usuario_id_1"),
+        inverseJoinColumns = @JoinColumn(name = "usuario_id_2")
+    )
+    private Set<UsuarioModel> amigos = new HashSet<>();
+    private List<Mensaje> mensajesEnviados;
+    private List<Mensaje> mensajesRecibidos;
     
-    
-    public UsuarioModel() {
+    public List<Mensaje> getMensajesEnviados() {
+		return mensajesEnviados;
+	}
+	public void setMensajesEnviados(List<Mensaje> mensajesEnviados) {
+		this.mensajesEnviados = mensajesEnviados;
+	}
+	public List<Mensaje> getMensajesRecibidos() {
+		return mensajesRecibidos;
+	}
+	public void setMensajesRecibidos(List<Mensaje> mensajesRecibidos) {
+		this.mensajesRecibidos = mensajesRecibidos;
+	}
+	public UsuarioModel() {
+		this.mensajesEnviados = new ArrayList<>();
+	    this.mensajesRecibidos = new ArrayList<>();
     	
     }
     public UsuarioModel(String username, String email, boolean admin,
@@ -40,6 +66,8 @@ public class UsuarioModel {
 		this.password = password;
 		this.authToken=null;
 		this.juegos_en_propiedad=null;
+		this.mensajesEnviados = new ArrayList<>();
+	    this.mensajesRecibidos = new ArrayList<>();
 	}
 
 	public UsuarioModel(String username, String password) {
@@ -50,6 +78,8 @@ public class UsuarioModel {
 		this.juegos_en_propiedad=null;
 		this.email="demo@defaultaddress.com";
 		this.admin = false;
+		this.mensajesEnviados = new ArrayList<>();
+	    this.mensajesRecibidos = new ArrayList<>();
 		
 	}
 
@@ -103,14 +133,20 @@ public class UsuarioModel {
 		// TODO Auto-generated method stub
 		return this.authToken;
 	}
-	@ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-        name = "amistades",
-        joinColumns = @JoinColumn(name = "usuario_id_1"),
-        inverseJoinColumns = @JoinColumn(name = "usuario_id_2")
-    )
-    private Set<UsuarioModel> amigos = new HashSet<>();
-
+	
+	public String getUsername() {
+		return username;
+	}
+	public void setUsername(String username) {
+		this.username = username;
+	}
+	public ArrayList<JuegoModel> getJuegosEnPropiedad() {
+		return juegos_en_propiedad;
+	}
+	public void setJuegosEnPropiedad(ArrayList<JuegoModel> juegos_en_propiedad) {
+		this.juegos_en_propiedad = juegos_en_propiedad;
+	}
+	
     public Set<UsuarioModel> getAmigos() {
         return amigos;
     }
@@ -130,5 +166,13 @@ public class UsuarioModel {
         this.amigos.remove(amigo);
         amigo.getAmigos().remove(this);
     }
-    
+    public void enviarMensaje(UsuarioModel destinatario, String contenido) {
+        Mensaje mensaje = new Mensaje(this, destinatario, contenido);
+        destinatario.recibirMensaje(mensaje);
+        mensajesEnviados.add(mensaje);
+    }
+
+    public void recibirMensaje(Mensaje mensaje) {
+        mensajesRecibidos.add(mensaje);
+    }
 }

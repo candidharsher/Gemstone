@@ -21,147 +21,191 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
 public class PerfilView {
-    UsuarioModel usuario;
+	private UsuarioModel usuario;
 
-    public PerfilView(UsuarioModel usuario) {
-        this.usuario = usuario;
-    }
+	public PerfilView() {
+	}
 
-    public void mostrarPerfil(Stage perfilStage) {
-        // Crea un diseño para la vista del perfil
-        VBox perfilLayout = new VBox();
-        perfilLayout.setSpacing(10);
+	public UsuarioModel getUsuario() {
+		return usuario;
+	}
 
-        // Crea etiquetas para mostrar los datos del perfil
-        Label usernameLabel = new Label("Nombre de usuario: " + usuario.getUser());
-        Label emailLabel = new Label("Email: " + usuario.getEmail());
+	public void setUsuario(UsuarioModel usuario) {
+		this.usuario = usuario;
+	}
 
-        // Agrega las etiquetas al diseño
-        perfilLayout.getChildren().addAll(usernameLabel, emailLabel);
-     // Crea una sección para la foto de perfil
-        HBox photoBox = new HBox();
-        ImageView photoImageView = new ImageView();
-        photoImageView.setFitWidth(100);
-        photoImageView.setFitHeight(100);
-        photoImageView.setImage(new Image("file:placeholder.jpg")); // Ruta de la imagen de placeholder
+	public VBox mostrarPerfil(Stage perfilStage) {
+		// Crea un diseño para la vista del perfil
+		VBox perfilLayout = new VBox();
+		perfilLayout.setSpacing(10);
 
-        Button changePhotoButton = new Button("Cambiar Foto");
-        changePhotoButton.setOnAction(e -> cambiarFotoPerfil(photoImageView));
+		// Crea etiquetas para mostrar los datos del perfil
+		Label usernameLabel = new Label("Nombre de usuario: " + usuario.getUser());
+		Label emailLabel = new Label("Email: " + usuario.getEmail());
 
-        photoBox.getChildren().addAll(photoImageView, changePhotoButton);
-        perfilLayout.getChildren().add(photoBox);
-        if (usuario.isAdmin()) {
-            ImageView imageView = new ImageView();
-            // Carga la imagen del usuario en el ImageView
-            String imagePath = "31692344.jpg"; // Reemplaza con la ruta real de la imagen. en mi caso esta en la
-                                               // carp raiz del proyecto donde el pom y todo eso
-            String imageUrl = Paths.get(imagePath).toUri().toString();
-            Image image = new Image(imageUrl);
-            imageView.setImage(image);
-            perfilLayout.getChildren().add(imageView);
-        }
+		// Agrega las etiquetas al diseño
+		perfilLayout.getChildren().addAll(usernameLabel, emailLabel);
+		// Crea una sección para la foto de perfil
+		HBox photoBox = new HBox();
+		ImageView photoImageView = new ImageView();
+		photoImageView.setFitWidth(100);
+		photoImageView.setFitHeight(100);
+		photoImageView.setImage(new Image("file:placeholder.jpg")); // Ruta de la imagen de placeholder
 
-        // Botones y campos de edición
-        Button cerrarSesionButton = new Button("Cerrar Sesión");
-        Button guardarCambiosButton = new Button("Guardar Cambios");
-        TextField emailField = new TextField(usuario.getEmail());
+		Button changePhotoButton = new Button("Cambiar Foto");
+		changePhotoButton.setOnAction(e -> cambiarFotoPerfil(photoImageView));
 
-        // Manejadores de eventos
-        cerrarSesionButton.setOnAction(e -> cerrarSesion(perfilStage));
-        guardarCambiosButton.setOnAction(e -> actualizarCorreoElectronico(emailField.getText()));
+		photoBox.getChildren().addAll(photoImageView, changePhotoButton);
+		perfilLayout.getChildren().add(photoBox);
+		if (usuario.isAdmin()) {
+			ImageView imageView = new ImageView();
+			// Carga la imagen del usuario en el ImageView
+			String imagePath = "31692344.jpg"; // Reemplaza con la ruta real de la imagen. en mi caso esta en la
+												// carp raiz del proyecto donde el pom y todo eso
+			String imageUrl = Paths.get(imagePath).toUri().toString();
+			Image image = new Image(imageUrl);
+			imageView.setImage(image);
+			perfilLayout.getChildren().add(imageView);
+		}
 
-        // Agrega elementos al diseño del perfil
-        perfilLayout.getChildren().addAll(emailField, guardarCambiosButton, cerrarSesionButton);
+		// Botones y campos de edición
+		Button cerrarSesionButton = new Button("Cerrar Sesión");
+		Button guardarCambiosButton = new Button("Guardar Cambios");
+		TextField emailField = new TextField(usuario.getEmail());
 
-        // Configura la escena con el diseño del perfil y ábrela en el nuevo escenario
-        Scene perfilScene = new Scene(perfilLayout, 300, 200); // Ajusta el tamaño según tus preferencias
-        perfilStage.setScene(perfilScene);
-        // Agregar botones para manejar solicitudes de amistad en el método mostrarPerfil
-        Button agregarAmigoButton = new Button("Agregar amigo");
-        Button aceptarSolicitudButton = new Button("Aceptar solicitud");
+		// Manejadores de eventos
+		cerrarSesionButton.setOnAction(e -> cerrarSesion(perfilStage));
+		guardarCambiosButton.setOnAction(e -> actualizarCorreoElectronico(emailField.getText()));
 
-        // Lógica para enviar solicitudes de amistad
-        agregarAmigoButton.setOnAction(e -> enviarSolicitudAmistad());
+		// Agrega elementos al diseño del perfil
+		perfilLayout.getChildren().addAll(emailField, guardarCambiosButton, cerrarSesionButton);
 
-        // Lógica para aceptar solicitudes de amistad pendientes
-        aceptarSolicitudButton.setOnAction(e -> aceptarSolicitudAmistadPendiente());
+		// Configura la escena con el diseño del perfil y ábrela en el nuevo escenario
+		Scene perfilScene = new Scene(perfilLayout, 300, 200); // Ajusta el tamaño según tus preferencias
+		perfilStage.setScene(perfilScene);
+		// Agregar botones para manejar solicitudes de amistad en el método
+		// mostrarPerfil
+		Button agregarAmigoButton = new Button("Agregar amigo");
+		Button aceptarSolicitudButton = new Button("Aceptar solicitud");
 
-        // Agregar los botones al diseño del perfil
-        perfilLayout.getChildren().addAll(agregarAmigoButton, aceptarSolicitudButton);
-        // Muestra el escenario de la vista del perfil
-        perfilStage.show();
-    }
-    private void cambiarFotoPerfil(ImageView photoImageView) {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Seleccionar nueva foto de perfil");
-        File selectedFile = fileChooser.showOpenDialog(null);
+		// Lógica para enviar solicitudes de amistad
+		agregarAmigoButton.setOnAction(e -> enviarSolicitudAmistad());
 
-        if (selectedFile != null) {
-            Image newPhoto = new Image(selectedFile.toURI().toString());
-            photoImageView.setImage(newPhoto);
-        }
-    }
-    private void cerrarSesion(Stage perfilStage) {
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<String> response = restTemplate.postForEntity("http://localhost:8080/usuario/cerrar-sesion",
-                usuario, String.class);
+		// Lógica para aceptar solicitudes de amistad pendientes
+		aceptarSolicitudButton.setOnAction(e -> aceptarSolicitudAmistadPendiente());
+		// Crear una sección para mostrar los mensajes recibidos
+	    VBox mensajesRecibidosBox = new VBox();
+	    mensajesRecibidosBox.setSpacing(5);
 
-        // Maneja la respuesta según tus necesidades.
-        if (response.getStatusCode().equals(HttpStatus.OK)) {
-            // Cierre de sesión exitoso
-            // redirigir a la página de inicio de sesión, por ejemplo.
-            openLoginUI(perfilStage);
-            perfilStage.close(); // Cierra la ventana actual
-        } else {
-            // Cierre de sesión fallido
-            // Maneja el error adecuadamente
-            System.out.println("Error al cerrar la sesión");
-        }
-    }
+	    Label mensajesRecibidosLabel = new Label("Mensajes Recibidos:");
+	    mensajesRecibidosBox.getChildren().add(mensajesRecibidosLabel);
 
+	    // Obtener mensajes recibidos del usuario
+	    for (Mensaje mensaje : usuario.getMensajesRecibidos()) {
+	        Label mensajeLabel = new Label(mensaje.getContenido());
+	        mensajesRecibidosBox.getChildren().add(mensajeLabel);
+	    }
 
-    // Método para enviar solicitudes de amistad
-    private void enviarSolicitudAmistad() {
-        // Lógica para enviar la solicitud de amistad
-        // Puedes usar AutenticacionSingleton para obtener información del usuario actual y enviar la solicitud
-    }
+	    // Agregar la sección de mensajes recibidos al diseño del perfil
+	    perfilLayout.getChildren().add(mensajesRecibidosBox);
 
-    // Método para aceptar solicitudes de amistad pendientes
-    private void aceptarSolicitudAmistadPendiente() {
-        // Lógica para aceptar solicitudes de amistad pendientes
-        // Puedes utilizar AutenticacionSingleton para obtener las solicitudes pendientes del usuario actual y aceptarlas
-    }
+		// Agregar los botones al diseño del perfil
+		perfilLayout.getChildren().addAll(agregarAmigoButton, aceptarSolicitudButton);
+		
+		// Muestra el escenario de la vista del perfil
+		perfilStage.show();
+		return perfilLayout;
+	}
 
-    private void actualizarCorreoElectronico(String nuevoEmail) {
-        usuario.setEmail(nuevoEmail); // Actualiza el correo electrónico en el objeto UsuarioModel
+	private void cambiarFotoPerfil(ImageView photoImageView) {
+		FileChooser fileChooser = new FileChooser();
+		fileChooser.setTitle("Seleccionar nueva foto de perfil");
+		File selectedFile = fileChooser.showOpenDialog(null);
 
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<UsuarioModel> response = restTemplate.postForEntity("http://localhost:8080/usuario/editar-email",
-                usuario, UsuarioModel.class);
+		if (selectedFile != null) {
+			Image newPhoto = new Image(selectedFile.toURI().toString());
+			photoImageView.setImage(newPhoto);
+		}
+	}
 
-        // Maneja la respuesta según tus necesidades
-        if (response.getStatusCode().equals(HttpStatus.OK)) {
-            // Actualización exitosa
-            // Puedes mostrar un mensaje de éxito o realizar alguna acción adicional
-            System.out.println("Correo electrónico actualizado correctamente");
-        } else {
-            // Actualización fallida
-            // Maneja el error adecuadamente
-            System.out.println("Error al actualizar el correo electrónico");
-        }
-    }
+	private void cerrarSesion(Stage perfilStage) {
+		RestTemplate restTemplate = new RestTemplate();
+		ResponseEntity<String> response = restTemplate.postForEntity("http://localhost:8080/usuario/cerrar-sesion",
+				usuario, String.class);
 
-    private void openLoginUI(Stage perfilStage) {
-        Stage loginStage = new Stage();
-        loginStage.setTitle("Inicio de Sesión");
+		// Maneja la respuesta según tus necesidades.
+		if (response.getStatusCode().equals(HttpStatus.OK)) {
+			// Cierre de sesión exitoso
+			// redirigir a la página de inicio de sesión, por ejemplo.
+			openLoginUI(perfilStage);
+			perfilStage.close(); // Cierra la ventana actual
+		} else {
+			// Cierre de sesión fallido
+			// Maneja el error adecuadamente
+			System.out.println("Error al cerrar la sesión");
+		}
+	}
 
-        // Crea una instancia de PerfilView y pasa el nombre de usuario
-        LoginUI login = new LoginUI();
+	// Método para enviar solicitudes de amistad
+	private void enviarSolicitudAmistad() {
+		// Lógica para enviar la solicitud de amistad
+		// Puedes usar AutenticacionSingleton para obtener información del usuario
+		// actual y enviar la solicitud
+	}
 
-        // Muestra la vista del perfil en la nueva ventana
-        login.start(loginStage);
-        // Cierra la ventana actual de inicio de sesión (LoginUI)
-        perfilStage.close();
-    }
-    
+	// Método para aceptar solicitudes de amistad pendientes
+	private void aceptarSolicitudAmistadPendiente() {
+		// Lógica para aceptar solicitudes de amistad pendientes
+		// Puedes utilizar AutenticacionSingleton para obtener las solicitudes
+		// pendientes del usuario actual y aceptarlas
+	}
+
+	private void actualizarCorreoElectronico(String nuevoEmail) {
+		usuario.setEmail(nuevoEmail); // Actualiza el correo electrónico en el objeto UsuarioModel
+
+		RestTemplate restTemplate = new RestTemplate();
+		ResponseEntity<UsuarioModel> response = restTemplate.postForEntity("http://localhost:8080/usuario/editar-email",
+				usuario, UsuarioModel.class);
+
+		// Maneja la respuesta según tus necesidades
+		if (response.getStatusCode().equals(HttpStatus.OK)) {
+			// Actualización exitosa
+			// Puedes mostrar un mensaje de éxito o realizar alguna acción adicional
+			System.out.println("Correo electrónico actualizado correctamente");
+		} else {
+			// Actualización fallida
+			// Maneja el error adecuadamente
+			System.out.println("Error al actualizar el correo electrónico");
+		}
+	}
+
+	private void openLoginUI(Stage perfilStage) {
+		Stage loginStage = new Stage();
+		loginStage.setTitle("Inicio de Sesión");
+
+		// Crea una instancia de PerfilView y pasa el nombre de usuario
+		LoginUI login = new LoginUI();
+
+		// Muestra la vista del perfil en la nueva ventana
+		login.start(loginStage);
+		// Cierra la ventana actual de inicio de sesión (LoginUI)
+		perfilStage.close();
+	}
+
+	private void mostrarMensajesRecibidos() {
+		// Mostrar los mensajes recibidos en la interfaz
+		AutenticacionSingleton AS = AutenticacionSingleton.getInstance();
+		UsuarioModel usuarioConectado = AS.getUsuarioConectado();
+		for (Mensaje mensaje : usuarioConectado.getMensajesRecibidos()) {
+			// Mostrar cada mensaje en la interfaz
+		}
+	}
+
+	private void enviarMensaje(UsuarioModel destinatario, String contenido) {
+		AutenticacionSingleton AS = AutenticacionSingleton.getInstance();
+		UsuarioModel usuarioConectado = AS.getUsuarioConectado();
+		usuarioConectado.enviarMensaje(destinatario, contenido);
+		// Actualizar la interfaz para mostrar el mensaje enviado
+	}
+
 }

@@ -13,6 +13,9 @@ import com.example.demo.services.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.*;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -113,7 +116,23 @@ public class UsuarioController {
     public ArrayList<UsuarioModel> obtenerUsuarioPorAdmin(@RequestParam("admin") boolean admin){
         return this.usuarioService.obtenerPorAdmin(admin);
     }
-
+    @GetMapping("/perfil")
+    public ResponseEntity<UsuarioModel> obtenerPerfilUsuario() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        
+        if (authentication != null && authentication.getPrincipal() instanceof UserDetails) {
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            
+            // Aquí, userDetails.getUsername() puede darte el nombre de usuario actual
+            // Debes tener un servicio que encuentre al usuario por su nombre de usuario:
+            UsuarioModel usuario = usuarioService.obtenerPorUser(userDetails.getUsername());
+            
+            if (usuario != null) {
+                return new ResponseEntity<>(usuario, HttpStatus.OK);
+            }
+        }
+        return null;
+        }
     @DeleteMapping( path = "/delete/{id}")
     public String eliminarPorId(@PathVariable("id") Long id){
         boolean ok = this.usuarioService.eliminarUsuario(id);

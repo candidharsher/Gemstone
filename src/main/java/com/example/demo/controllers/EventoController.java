@@ -2,6 +2,7 @@ package com.example.demo.controllers;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 import com.example.demo.models.EventoModel;
@@ -24,11 +25,22 @@ public class EventoController {
     @Autowired
     UsuarioService usuarioService;
 
+    // Endpoint para obtener la lista de eventos
+    @GetMapping("/obtener-eventos")
+    public ResponseEntity<List<EventoModel>> obtenerEventos() {
+        List<EventoModel> eventos = eventoService.obtenerTodosLosEventos();
+        return new ResponseEntity<>(eventos, HttpStatus.OK);
+    }
+
     @PostMapping("/crear")
-    public ResponseEntity<String> crearEvento(@RequestBody EventoModel evento, @RequestParam Long usuarioId) {
+    public ResponseEntity<String> crearEvento(@RequestBody EventoModel evento) {
+    	long usuarioId = evento.getCreador().getId();
         Optional<UsuarioModel> usuario = usuarioService.obtenerPorId(usuarioId);
         if (usuario.isPresent() && usuario.get().isAdmin()) {
+            evento.setCreador(usuario.get()); // Asignar el usuario creador al evento
+
             EventoModel nuevoEvento = eventoService.guardarEvento(evento);
+
             if (nuevoEvento != null) {
                 return new ResponseEntity<>("Evento creado con éxito", HttpStatus.OK);
             } else {
@@ -38,6 +50,7 @@ public class EventoController {
             return new ResponseEntity<>("No tienes permiso para crear eventos", HttpStatus.UNAUTHORIZED);
         }
     }
+
 
     @DeleteMapping("/borrar/{id}")
     public ResponseEntity<String> borrarEvento(@PathVariable Long id) {
