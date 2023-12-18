@@ -3,6 +3,7 @@ package ui;
 import com.example.demo.PayPalPaymentHandler;
 import com.example.demo.models.JuegoModel;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Scene;
@@ -54,8 +55,6 @@ public class TiendaJuegosUI {
 			root.getChildren().add(crearNuevoButton);
 		}
 
-		
-
 		TextField buscarTextField = new TextField();
 		buscarTextField.setPromptText("Buscar por nombre de juego");
 		buscarTextField.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -81,7 +80,14 @@ public class TiendaJuegosUI {
 			}
 
 		});
-
+		crearNuevoButton.setOnAction(event -> {
+			NuevoJuegoDialog nuevoJuegoDialog = new NuevoJuegoDialog();
+			nuevoJuegoDialog.mostrarDialog(primaryStage); // Pasas la ventana principal
+			nuevoJuegoDialog.getDialogStage().setOnHidden(e -> {
+				cargarJuegosDesdeBaseDatos();
+				Platform.runLater(() -> listView.setItems(juegos));
+			});
+		});
 		Scene scene = new Scene(root, 400, 300);
 		primaryStage.setScene(scene);
 		primaryStage.show();
@@ -90,29 +96,20 @@ public class TiendaJuegosUI {
 
 	private void añadirJuegoSeleccionado(JuegoModel juegoSeleccionado) {
 		if (AS.getUsuarioConectado() != null && juegoSeleccionado != null) {
-			String url = "http://localhost:8080/usuario/agregar-juego/" + AS.getUsuarioConectado().getId();
-			HttpHeaders headers = new HttpHeaders();
-			headers.setContentType(MediaType.APPLICATION_JSON);
+	        String url = "http://localhost:8080/usuario/agregar-juego/" + AS.getUsuarioConectado().getId();
 
-			HttpEntity<JuegoModel> request = new HttpEntity<>(juegoSeleccionado, headers);
+	        // Realizar la solicitud POST al backend para agregar el juego al usuario
+	        ResponseEntity<String> response = restTemplate.postForEntity(url, juegoSeleccionado, String.class);
 
-			ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.PUT, request, String.class);
-
-			if (response.getStatusCode() == HttpStatus.OK) {
-				PayPalPaymentHandler payPalHandler = new PayPalPaymentHandler(clientId, clientSecret, mode);
-				double precioJuego = obtenerPrecioJuego(juegoSeleccionado);
-				String orderId = payPalHandler.crearOrdenDePago(precioJuego);
-				if (orderId != null) {
-					redirigirAPayPal(orderId);
-				} else {
-					System.out.println("Error al crear la orden de pago");
-				}
-			} else {
-				System.out.println("Error al agregar el juego al usuario");
-			}
-		} else {
-			System.out.println("Por favor, seleccione un juego y asegúrese de estar conectado");
-		}
+	        // Verificar la respuesta y actuar en consecuencia
+	        if (response.getStatusCode() == HttpStatus.OK) {
+	            // Si la adición es exitosa, muestra un mensaje o realiza alguna acción en la interfaz
+	            System.out.println("Juego agregado al usuario con éxito");
+	        } else {
+	            // Manejar la respuesta en caso de error
+	            System.out.println("Error al agregar el juego al usuario");
+	        }
+	    }
 
 	}
 

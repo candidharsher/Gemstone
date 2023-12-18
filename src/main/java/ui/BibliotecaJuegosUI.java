@@ -14,6 +14,11 @@ import javafx.stage.Stage;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
 
 public class BibliotecaJuegosUI {
 
@@ -61,10 +66,22 @@ public class BibliotecaJuegosUI {
 		UsuarioModel usuarioActual = obtenerUsuarioActual();
 
 		if (usuarioActual != null && usuarioActual.getJuegosEnPropiedad() != null) {
-			// Obtener los juegos en propiedad del usuario y agregarlos a la lista
-			ArrayList<JuegoModel> juegosPropiedad = usuarioActual.getJuegosEnPropiedad();
-			juegosEnPropiedad.addAll(juegosPropiedad);
+			Set<JuegoModel> juegosPropiedad = usuarioActual.getJuegosEnPropiedad();
+			ArrayList<JuegoModel> juegos = new ArrayList<>();
+			for (JuegoModel juegotmp : juegosPropiedad) {
+				if (juegotmp != null) {
+					juegos.add(juegotmp);
+				}
+			}
+			juegosEnPropiedad.addAll(juegos);
 		}
+	}
+
+	public JuegoModel obtenerJuegoPorId(Long id) {
+		RestTemplate restTemplate = new RestTemplate();
+		ResponseEntity<JuegoModel> response = restTemplate.exchange("http://localhost:8080/juegos" + "/" + id,
+				HttpMethod.GET, null, JuegoModel.class);
+		return response.getBody();
 	}
 
 	// Ejemplo de obtener el usuario actual (puedes reemplazar esto con tu lógica

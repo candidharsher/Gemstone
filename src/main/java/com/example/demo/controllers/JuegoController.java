@@ -1,23 +1,27 @@
 package com.example.demo.controllers;
 
 import com.example.demo.models.JuegoModel;
+import com.example.demo.models.UsuarioModel;
 import com.example.demo.services.JuegoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import com.example.demo.services.UsuarioService;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/juegos")
 public class JuegoController {
 
 	private final JuegoService juegoService;
+	private final UsuarioService usuarioService;
 
 	@Autowired
-	public JuegoController(JuegoService juegoService) {
+	public JuegoController(JuegoService juegoService, UsuarioService usuarioService) {
 		this.juegoService = juegoService;
+		this.usuarioService = usuarioService;
 	}
 
 	// Obtener todos los juegos
@@ -54,4 +58,18 @@ public class JuegoController {
 		juegoService.borrarJuego(id);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
+
+	@PutMapping("/agregar-juego/{usuarioId}")
+	public ResponseEntity<String> agregarJuegoAUsuario(@PathVariable Long usuarioId, @RequestBody JuegoModel juego) {
+		Optional<UsuarioModel> usuarioOptional = usuarioService.obtenerPorId(usuarioId);
+		if (usuarioOptional.isPresent()) {
+			UsuarioModel usuario = usuarioOptional.get();
+			usuario.agregarJuegoEnPropiedad(juego); // Utiliza el método para agregar el juego al usuario
+			usuarioService.guardarUsuario(usuario);
+			return new ResponseEntity<>("Juego agregado al usuario con éxito", HttpStatus.OK);
+		} else {
+			return new ResponseEntity<>("Usuario no encontrado", HttpStatus.NOT_FOUND);
+		}
+	}
+
 }

@@ -26,8 +26,12 @@ public class UsuarioModel {
 	private String email;
 	@Column(nullable = false)
 	private boolean admin;
-	@Column(nullable = true)
-	private ArrayList<JuegoModel> juegos_en_propiedad;
+	@ManyToMany(fetch = FetchType.EAGER)
+	@JoinTable(name = "usuarios_juegos", // Nombre de la tabla intermedia
+			joinColumns = @JoinColumn(name = "usuario_id"), // Columna del usuario
+			inverseJoinColumns = @JoinColumn(name = "juego_id") // Columna del juego
+	)
+	private Set<JuegoModel> juegos_en_propiedad = new HashSet<>();
 	@Column(nullable = false)
 	private String password;
 	@Transient
@@ -54,6 +58,10 @@ public class UsuarioModel {
 
 	public List<Mensaje> getMensajesRecibidos() {
 		return mensajesRecibidos;
+	}
+
+	public void agregarJuegoEnPropiedad(JuegoModel juego) {
+		this.juegos_en_propiedad.add(juego);
 	}
 
 	public void setMensajesRecibidos(List<Mensaje> mensajesRecibidos) {
@@ -149,11 +157,11 @@ public class UsuarioModel {
 		this.username = username;
 	}
 
-	public ArrayList<JuegoModel> getJuegosEnPropiedad() {
+	public Set<JuegoModel> getJuegosEnPropiedad() {
 		return juegos_en_propiedad;
 	}
 
-	public void setJuegosEnPropiedad(ArrayList<JuegoModel> juegos_en_propiedad) {
+	public void setJuegosEnPropiedad(Set<JuegoModel> juegos_en_propiedad) {
 		this.juegos_en_propiedad = juegos_en_propiedad;
 	}
 
@@ -165,11 +173,11 @@ public class UsuarioModel {
 		this.amigos = amigos;
 	}
 
-	public ArrayList<JuegoModel> getJuegos_en_propiedad() {
+	public Set<JuegoModel> getJuegos_en_propiedad() {
 		return juegos_en_propiedad;
 	}
 
-	public void setJuegos_en_propiedad(ArrayList<JuegoModel> juegos_en_propiedad) {
+	public void setJuegos_en_propiedad(Set<JuegoModel> juegos_en_propiedad) {
 		this.juegos_en_propiedad = juegos_en_propiedad;
 	}
 

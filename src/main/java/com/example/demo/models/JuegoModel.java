@@ -2,6 +2,8 @@ package com.example.demo.models;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "juegos")
@@ -22,6 +24,12 @@ public class JuegoModel {
 	private double precio;
 
 	// Otros atributos del juego
+	@ManyToMany(fetch = FetchType.EAGER)
+	@JoinTable(name = "usuarios_juegos", // Nombre de la tabla intermedia
+			inverseJoinColumns = @JoinColumn(name = "usuario_id"), // Columna del usuario
+			joinColumns = @JoinColumn(name = "juego_id") // Columna del juego
+	)
+	private Set<JuegoModel> usuarios_que_han_comprado = new HashSet<>();
 
 	public JuegoModel() {
 		// Constructor vacío
@@ -34,7 +42,7 @@ public class JuegoModel {
 		// Inicializa otros atributos si los tienes
 	}
 
-	public JuegoModel(String nombre, String descripcion, float precio) {
+	public JuegoModel(String nombre, String descripcion, double precio) {
 		this.nombre = nombre;
 		this.descripcion = descripcion;
 		this.precio = precio;
