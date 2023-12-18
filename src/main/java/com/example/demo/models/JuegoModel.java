@@ -1,6 +1,5 @@
 package com.example.demo.models;
 
-
 import javax.persistence.*;
 import java.util.ArrayList;
 
@@ -8,53 +7,77 @@ import java.util.ArrayList;
 @Table(name = "juegos")
 public class JuegoModel {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(unique = true, nullable = false)
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(unique = true, nullable = false)
+	private Long id;
 
-    @Column(nullable = false)
-    private String nombre;
+	@Column(nullable = false)
+	private String nombre;
 
-    @Column(nullable = true)
-    private String descripcion;
+	@Column(nullable = true)
+	private String descripcion;
 
-    // Otros atributos del juego
+	@Column(nullable = false)
+	private double precio;
 
-    public JuegoModel() {
-        // Constructor vacío
-    }
+	// Otros atributos del juego
 
-    public JuegoModel(String nombre, String descripcion) {
-        this.nombre = nombre;
-        this.descripcion = descripcion;
-        // Inicializa otros atributos si los tienes
-    }
+	public JuegoModel() {
+		// Constructor vacío
+	}
 
-    public Long getId() {
-        return id;
-    }
+	public JuegoModel(String nombre, String descripcion) {
+		this.nombre = nombre;
+		this.descripcion = descripcion;
+		this.precio = 0;
+		// Inicializa otros atributos si los tienes
+	}
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+	public JuegoModel(String nombre, String descripcion, float precio) {
+		this.nombre = nombre;
+		this.descripcion = descripcion;
+		this.precio = precio;
+	}
 
-    public String getNombre() {
-        return nombre;
-    }
+	public double getPrecio() {
+		return precio;
+	}
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
+	public void setPrecio(double precio) {
+		this.precio = precio;
+	}
 
-    public String getDescripcion() {
-        return descripcion;
-    }
+	public Long getId() {
+		return id;
+	}
 
-    public void setDescripcion(String descripcion) {
-        this.descripcion = descripcion;
-    }
+	public void setId(Long id) {
+		this.id = id;
+	}
 
-    // Otros getters y setters para los atributos del juego
+	public String getNombre() {
+		return nombre;
+	}
+
+	public void setNombre(String nombre) {
+		this.nombre = nombre;
+	}
+
+	public String getDescripcion() {
+		return descripcion;
+	}
+
+	public void setDescripcion(String descripcion) {
+		this.descripcion = descripcion;
+	}
+
+	@Override
+	public String toString() {
+		return "JuegoModel [id=" + id + ", nombre=" + nombre + ", descripcion=" + descripcion + ", precio=" + precio
+				+ "]";
+	}
+
+	// Otros getters y setters para los atributos del juego
 
 }

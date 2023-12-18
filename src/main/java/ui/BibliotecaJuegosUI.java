@@ -12,6 +12,8 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class BibliotecaJuegosUI {
 
@@ -24,12 +26,18 @@ public class BibliotecaJuegosUI {
 
 		VBox root = new VBox();
 		root.setSpacing(10);
-
 		ListView<JuegoModel> listView = new ListView<>();
 		cargarJuegosEnPropiedad();
 		listView.setItems(juegosEnPropiedad);
+		ListView<String> list = new ListView<>();
 
-		root.getChildren().addAll(listView);
+		// Recorre los juegos en propiedad y agrega sus representaciones de cadena al
+		// ListView
+		for (JuegoModel juego : juegosEnPropiedad) {
+			list.getItems().add(juego.toString());
+		}
+
+		root.getChildren().addAll(list);
 
 		Scene scene = new Scene(root, 400, 300);
 		primaryStage.setScene(scene);

@@ -1,13 +1,5 @@
 package ui;
 
-import java.util.List;
-
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
-
 import com.example.demo.PayPalPaymentHandler;
 import com.example.demo.models.JuegoModel;
 import javafx.application.Application;
@@ -22,79 +14,112 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+import java.util.List;
+
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.*;
+import org.springframework.web.client.RestTemplate;
+
 public class TiendaJuegosUI {
 
 	private ObservableList<JuegoModel> juegos = FXCollections.observableArrayList();
-	private boolean esAdmin = false; // Variable para controlar si el usuario es administrador
+	private boolean esAdmin = false;
 	private final String clientId = "TU_CLIENT_ID";
 	private final String clientSecret = "TU_CLIENT_SECRET";
-	private final String mode = "sandbox"; // Puedes usar 'sandbox' para pruebas
+	private RestTemplate restTemplate = new RestTemplate();
+	private final String mode = "sandbox";
 	private ListView<JuegoModel> listView;
+	private AutenticacionSingleton AS = AutenticacionSingleton.getInstance();
 
 	public VBox start(Stage primaryStage) {
 		primaryStage.setTitle("Tienda de Juegos");
-		cargarJuegosDesdeBaseDatos();
+
 		VBox root = new VBox();
 		root.setSpacing(10);
 		listView = new ListView<>();
-		listView.setItems(juegos);
+		cargarJuegosDesdeBaseDatos();
+		ListView<String> list = new ListView<>();
 
+		// Recorre los juegos en propiedad y agrega sus representaciones de cadena al
+		// ListView
+		for (JuegoModel juego : juegos) {
+			list.getItems().add(juego.toString());
+		}
 		Button comprarButton = new Button("Comprar");
 		Button crearNuevoButton = new Button("Insertar Nuevo Juego");
 
 		listView.setCellFactory(param -> new JuegoCell(comprarButton));
 
-		// Si es administrador, muestra el botón para crear nuevo juego
 		if (esAdmin) {
 			root.getChildren().add(crearNuevoButton);
 		}
 
-		root.getChildren().addAll(listView);
-		// Agregar un TextField para búsqueda
+		
+
 		TextField buscarTextField = new TextField();
 		buscarTextField.setPromptText("Buscar por nombre de juego");
 		buscarTextField.textProperty().addListener((observable, oldValue, newValue) -> {
-			// Aquí puedes manejar la lógica de búsqueda
-			// Por ejemplo, puedes filtrar la lista 'juegos' basándote en el texto
-			// introducido
 			filtrarJuegos(newValue, listView);
 		});
 		root.getChildren().add(0, buscarTextField);
+		root.getChildren().addAll(list, comprarButton, crearNuevoButton);
+
 		comprarButton.setOnAction(event -> {
 			JuegoModel juegoSeleccionado = listView.getSelectionModel().getSelectedItem();
+			añadirJuegoSeleccionado(juegoSeleccionado);
 			if (juegoSeleccionado != null) {
 				PayPalPaymentHandler payPalHandler = new PayPalPaymentHandler(clientId, clientSecret, mode);
-				double precioJuego = obtenerPrecioJuego(juegoSeleccionado); // Método para obtener el precio del juego
+				double precioJuego = obtenerPrecioJuego(juegoSeleccionado);
 				String orderId = payPalHandler.crearOrdenDePago(precioJuego);
 				if (orderId != null) {
-					// Redirigir a la URL de PayPal para que el usuario complete el pago
 					redirigirAPayPal(orderId);
 				} else {
-					// Manejar el caso en que no se pueda crear la orden de pago
 					System.out.println("Error al crear la orden de pago");
 				}
 			} else {
-				// Manejar el caso en que no se haya seleccionado ningún juego
 				System.out.println("Por favor, seleccione un juego para comprar");
 			}
+
 		});
+
 		Scene scene = new Scene(root, 400, 300);
 		primaryStage.setScene(scene);
 		primaryStage.show();
 		return root;
 	}
 
-	private void redirigirAPayPal(String orderId) {
-		// TODO Auto-generated method stub
+	private void añadirJuegoSeleccionado(JuegoModel juegoSeleccionado) {
+		if (AS.getUsuarioConectado() != null && juegoSeleccionado != null) {
+			String url = "http://localhost:8080/usuario/agregar-juego/" + AS.getUsuarioConectado().getId();
+			HttpHeaders headers = new HttpHeaders();
+			headers.setContentType(MediaType.APPLICATION_JSON);
+
+			HttpEntity<JuegoModel> request = new HttpEntity<>(juegoSeleccionado, headers);
+
+			ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.PUT, request, String.class);
+
+			if (response.getStatusCode() == HttpStatus.OK) {
+				PayPalPaymentHandler payPalHandler = new PayPalPaymentHandler(clientId, clientSecret, mode);
+				double precioJuego = obtenerPrecioJuego(juegoSeleccionado);
+				String orderId = payPalHandler.crearOrdenDePago(precioJuego);
+				if (orderId != null) {
+					redirigirAPayPal(orderId);
+				} else {
+					System.out.println("Error al crear la orden de pago");
+				}
+			} else {
+				System.out.println("Error al agregar el juego al usuario");
+			}
+		} else {
+			System.out.println("Por favor, seleccione un juego y asegúrese de estar conectado");
+		}
 
 	}
 
 	private double obtenerPrecioJuego(JuegoModel juegoSeleccionado) {
-		// TODO Auto-generated method stub
-		return 0;
+		return juegoSeleccionado.getPrecio();
 	}
 
-	// Define la celda para mostrar cada juego en la lista
 	private class JuegoCell extends ListCell<JuegoModel> {
 		private final Button comprarButton;
 
@@ -110,13 +135,10 @@ public class TiendaJuegosUI {
 				setText(null);
 				setGraphic(null);
 			} else {
-				// Crea una estructura visual para mostrar los detalles del juego
 				VBox vbox = new VBox();
 				Label tituloLabel = new Label(juego.getNombre());
-				// Mostrar detalles adicionales del juego aquí
 				vbox.getChildren().addAll(tituloLabel, comprarButton);
 
-				// Si el usuario es administrador, muestra el botón para crear
 				if (esAdmin) {
 					Button borrarButton = new Button("Borrar");
 					vbox.getChildren().add(borrarButton);
@@ -127,37 +149,52 @@ public class TiendaJuegosUI {
 		}
 	}
 
-	// Método para cargar juegos desde la base de datos y agregarlos a la lista
 	private void cargarJuegosDesdeBaseDatos() {
 		RestTemplate restTemplate = new RestTemplate();
 
-		// Realizar una solicitud GET al endpoint que devuelve todos los juegos
 		ResponseEntity<List<JuegoModel>> response = restTemplate.exchange("http://localhost:8080/juegos/allgames",
 				HttpMethod.GET, null, new ParameterizedTypeReference<List<JuegoModel>>() {
 				});
 
 		if (response.getStatusCode() == HttpStatus.OK) {
-			// Obtener la lista de juegos de la respuesta y agregarlos a la lista 'juegos'
 			List<JuegoModel> juegosDesdeBD = response.getBody();
 			juegos.addAll(juegosDesdeBD);
-			// Actualizar la ListView con los juegos cargados
 			listView.setItems(juegos);
 		} else {
-			// Manejar el caso en que no se puedan obtener los juegos
 			System.out.println("Error al cargar los juegos desde la base de datos");
 		}
 	}
 
 	private void filtrarJuegos(String textoBusqueda, ListView<JuegoModel> listView) {
 		if (textoBusqueda == null || textoBusqueda.isEmpty()) {
-			// Si el campo de búsqueda está vacío, muestra todos los juegos
 			listView.setItems(juegos);
 		} else {
-			// Si hay texto en el campo de búsqueda, filtra los juegos por nombre
 			ObservableList<JuegoModel> juegosFiltrados = juegos
 					.filtered(juego -> juego.getNombre().toLowerCase().contains(textoBusqueda.toLowerCase()));
-			listView.setItems(juegosFiltrados); // Muestra solo los juegos que coincidan con la búsqueda
+			listView.setItems(juegosFiltrados);
 		}
+	}
 
+	private void redirigirAPayPal(String orderId) {
+		PayPalPaymentHandler payPalHandler = new PayPalPaymentHandler(clientId, clientSecret, mode);
+		String authorizationURL = payPalHandler.obtenerURLAutorizacion(orderId);
+		if (authorizationURL != null && !authorizationURL.isEmpty()) {
+			abrirNavegadorConURL(authorizationURL);
+		} else {
+			System.out.println("Error al obtener la URL de autorización de PayPal");
+		}
+	}
+
+	private String obtenerURLPayPal(String orderId) {
+		PayPalPaymentHandler payPalHandler = new PayPalPaymentHandler(clientId, clientSecret, mode);
+		return payPalHandler.obtenerURLPayPal(orderId);
+	}
+
+	private void abrirNavegadorConURL(String urlPayPal) {
+		try {
+			java.awt.Desktop.getDesktop().browse(new java.net.URI(urlPayPal));
+		} catch (java.io.IOException | java.net.URISyntaxException e) {
+			e.printStackTrace();
+		}
 	}
 }

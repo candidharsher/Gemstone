@@ -1,7 +1,12 @@
 package com.example.demo.models;
 
 import javax.persistence.*;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "eventos")
@@ -25,12 +30,15 @@ public class EventoModel {
 	private Date fechaFin;
 
 	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "juego_id")
-	private JuegoModel juego_id;
+	@JoinColumn(name = "videojuego_id")
+	private JuegoModel videojuego_id;
 
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "creador_id")
 	private UsuarioModel creador_id;
+	@JsonIgnore
+	@ManyToMany(mappedBy = "eventosInscritos", fetch = FetchType.EAGER)
+	private Set<UsuarioModel> usuariosInscritos = new HashSet<>();
 
 	public EventoModel() {
 		// Constructor vacío
@@ -42,7 +50,7 @@ public class EventoModel {
 		this.descripcion = descripcion;
 		this.fechaInicio = fechaInicio;
 		this.fechaFin = fechaFin;
-		this.juego_id = videojuego;
+		this.videojuego_id = videojuego;
 		this.creador_id = creador;
 	}
 
@@ -87,11 +95,11 @@ public class EventoModel {
 	}
 
 	public JuegoModel getVideojuego() {
-		return juego_id;
+		return videojuego_id;
 	}
 
 	public void setVideojuego(JuegoModel videojuego) {
-		this.juego_id = videojuego;
+		this.videojuego_id = videojuego;
 	}
 
 	public UsuarioModel getCreador() {
@@ -101,4 +109,35 @@ public class EventoModel {
 	public void setCreador(UsuarioModel creador) {
 		this.creador_id = creador;
 	}
+
+	public JuegoModel getVideojuego_id() {
+		return videojuego_id;
+	}
+
+	public void setVideojuego_id(JuegoModel videojuego_id) {
+		this.videojuego_id = videojuego_id;
+	}
+
+	public UsuarioModel getCreador_id() {
+		return creador_id;
+	}
+
+	public void setCreador_id(UsuarioModel creador_id) {
+		this.creador_id = creador_id;
+	}
+
+	public Set<UsuarioModel> getUsuariosInscritos() {
+		return usuariosInscritos;
+	}
+
+	public void setUsuariosInscritos(Set<UsuarioModel> usuariosInscritos) {
+		this.usuariosInscritos = usuariosInscritos;
+	}
+
+	@Override
+	public String toString() {
+		return "EventoModel [id=" + id + ", titulo=" + titulo + ", descripcion=" + descripcion + ", fechaInicio="
+				+ fechaInicio + ", fechaFin=" + fechaFin + "]";
+	}
+
 }
